@@ -53,15 +53,74 @@ void Hf2 (double x, double y, double* out)
   out[3] = -1 * (2*(pow(x,4) + x*x*(2*y - 1) + y*y - 1))/pow(pow(x,4) + x*x*(2*y + 1) + y*y + 1, 2);
 }
 
-void newton (string name, double precision, int max_iterations, double *out, void (*d_function)(double, double, double*), double (*h_function)(double, double, double*))
+void invert2dmatrix (double* original, double* inverted)
+{
+  double idet = 1 / (original[0]*original[3]-original[1]*original[2]);
+  inverted[0] = original[4] * idet;
+  inverted[1] = original[1] * idet * -1;
+  inverted[2] = original[2] * idet * -1;
+  inverted[3] = original[0] * idet;
+}
+
+double goldenSectionSearch (double precision, double in_a, double in_b, double *x, double *dx, double (*f) (double, double))
+{
+  const double gr = ((sqrt(5)-1) / 2);
+
+  // initialize bounds
+  double a = in_a;
+  double c = (in_a + in_b) / 2; //center
+  double b = in_b;
+
+  while (f(x[0]+c*dx[0], x[1]+c*dx[1]) < f(x[0]+c*dx[0], x[1]+c*dx[1]))
+  {
+    a = c;
+    c = b;
+    b = b + (c - a);
+  }
+
+  double d = a + (1 - gr) * (b - a);
+  double e = a + gr * (b - a);
+
+  double aux_a = a;
+  double aux_b = b;
+
+  while (b - a > precision)
+  {
+    if (f(x[0]+d*dx[0], x[1]+d*dx[1]) < f(x[0]+e*dx[0], x[1]+e*dx[1]))
+    {
+      b = e;
+      e = d;
+      d = a + (1 - gr) * (b - a);
+    }
+    else
+    {
+      a = d;
+      d = e;
+      e = a + gr * (b - a);
+    }
+
+    if ((aux_a == a) && (aux_b == b))
+    {
+      break;
+    }
+    aux_a = a;
+    aux_b = b;
+
+  }
+  return (a + b) / 2;
+}
+
+void newton (string name, double precision, int max_iterations, double *out, double (*function) (double, double), void (*d_function)(double, double, double*), void (*h_function)(double, double, double*))
 {
   int current_iteration = 0;
   double grad [2] = {0, 0};
   double hess [4] = {0, 0, 0, 0};
+  double inv_hess [4] = {0, 0, 0, 0};
+  double dk [2] = {0, 0};
   double tmp [2] = {0, 0};
   out[0] = out[1] = 10;
 
-  cout << "Starting Gradient descent.\nParameters:" << endl;
+  cout << "Starting Newton method.\nParameters:" << endl;
   cout << "Precision: " << precision << endl;
   cout << "Max number of iterations: " << max_iterations << endl;
   cout << "Starting..." << endl;
@@ -73,15 +132,31 @@ void newton (string name, double precision, int max_iterations, double *out, voi
     // calculate new derivate
     d_function(tmp[0], tmp[1], grad);
     h_function(tmp[0], tmp[1], hess);
-    double f_value = function(out[0], out[1]);
+    invert2dmatrix(hess, inv_hess);
 
-    cout << "out[0]: " <<out[0]<<" func: " << f_value << " der[0]: " << grad[0] << " ratio: " << f_value / grad[0] << " final: " << out[0] - f_value / grad[0] << endl;
+    cout << "HESS: "<<  hess[0]<<", "<<hess[1]<<", "<<hess[2]<<", "<<hess[3]<<endl;
+    cout << "i_HESS: "<<  inv_hess[0]<<", "<<inv_hess[1]<<", "<<inv_hess[2]<<", "<<inv_hess[3]<<endl;
+    cout << "GRAD: "<<  grad[0]<<", "<<grad[1]<<endl;
 
-    out[0] = tmp[0] - f_value / grad[0];
-    out[1] = tmp[1] - f_value / grad[1];
+    dk[0] = -1 * (inv_hess[0]*grad[0] + inv_hess[1]*grad[1]);
+    dk[1] = -1 * (inv_hess[2]*grad[0] + inv_hess[3]*grad[1]);
+
+    double t = goldenSectionSearch(precision, 0, 10, out, dk, function);
+
+    cout << "Dk: "<<dk[0]<<" "<<dk[1]<< " t: "<<t<<endl;
+
+    out[0] += t * dk[0];
+    out[1] += t * dk[1];
+
+    cout <<"Iteration: " << current_iteration <<" Result: (" << out[0] << ", " << out[1] << ")" << endl;
+
     current_iteration += 1;
 
     if ((abs(out[0] - tmp[0]) < precision) && (abs(out[1] - tmp[1]) < precision))
+    {
+      break;
+    }
+    if (grad[0] == grad[1] == 0)
     {
       break;
     }
@@ -101,7 +176,7 @@ int main()
   // max iterations
   int max_iterations = 100000;
 
-  newton("F1",precision, 3, new_arr, df1, f1);
+  newton("F1",precision, 100, new_arr, f1, df1, Hf1);
 
   //newton("F2",precision, max_iterations, new_arr, df2, f2);
 
