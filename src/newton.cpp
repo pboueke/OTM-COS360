@@ -134,6 +134,12 @@ void newton (string name, double precision, int max_iterations, double *out, dou
     h_function(tmp[0], tmp[1], hess);
     invert2dmatrix(hess, inv_hess);
 
+    if (grad[0] == 0 && grad[1] == 0)
+    {
+      cout << "Grad exit " << grad[0] << " " << grad[1] << endl;
+      break;
+    }
+
     cout << "HESS: "<<  hess[0]<<", "<<hess[1]<<", "<<hess[2]<<", "<<hess[3]<<endl;
     cout << "i_HESS: "<<  inv_hess[0]<<", "<<inv_hess[1]<<", "<<inv_hess[2]<<", "<<inv_hess[3]<<endl;
     cout << "GRAD: "<<  grad[0]<<", "<<grad[1]<<endl;
@@ -154,10 +160,7 @@ void newton (string name, double precision, int max_iterations, double *out, dou
 
     if ((abs(out[0] - tmp[0]) < precision) && (abs(out[1] - tmp[1]) < precision))
     {
-      break;
-    }
-    if (grad[0] == grad[1] == 0)
-    {
+      cout << "Precision Exit" << endl;
       break;
     }
   }
