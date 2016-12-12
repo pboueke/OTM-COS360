@@ -5,16 +5,18 @@
 
 using namespace std;
 
-void df1(double x, double y, double* out)
-{
+void df1(double x, double y, double* out) {
+  // x   (2 log(x))/(x (log^2(x) + log^2(y) + 1))
   out[0] = (2 * log (x)) / (x * (1 + log(x) * log (x) + log(y) * log(y)));
+  // y   (2 log(y))/(y (log^2(x) + log^2(y) + 1))
   out[1] = (2 * log (y)) / (y * (1 + log(y) * log (y) + log(x) * log(x)));
 }
 
-void df2(double x, double y, double* out)
-{
-  out[0] = (4*x*(x*x + y) + 2*x) / ((x*x + y)*(x*x + y) + x*x + 1);
-  out[1] = (2*(y + x*x)) / ((y + x*x)*(y + x*x) + x*x + 1);
+void df2(double x, double y, double* out) {
+  // x   (2 (2 x^3 - 2 x y + x))/((x^2 - y)^2 + x^2 + 1)
+  out[0] = (2*(2*x*x*x - 2*x*y + x))/(pow(x*x - y, 2) + x*x + 1)
+  // y  -(2 (x^2 - y))/((x^2 - y)^2 + x^2 + 1)
+  out[1] = -1 * (2*(x*x - y))/(pow(x*x - y, 2) + x*x + 1)
 }
 
 void gradient (string name, double precision, double gamma, int max_iterations, double *out, void (*d_function)(double, double, double*))
@@ -39,7 +41,7 @@ void gradient (string name, double precision, double gamma, int max_iterations, 
     out[0] += -gamma * grad[0];
     out[1] += -gamma * grad[1];
     current_iteration += 1;
-    
+
     if ((abs(out[0] - tmp[0]) < precision) && (abs(out[1] - tmp[1]) < precision))
     {
       break;

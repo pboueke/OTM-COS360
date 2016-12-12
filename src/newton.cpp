@@ -12,19 +12,21 @@ double f1 (double x, double y)
 
 double f2 (double x, double y)
 {
-  return log(1 + x * x + (x * x + y) * (x * x + y));
+  return log(1 + x * x + (x * x - y) * (x * x - y));
 }
 
-void df1(double x, double y, double* out)
-{
+void df1(double x, double y, double* out) {
+  // x   (2 log(x))/(x (log^2(x) + log^2(y) + 1))
   out[0] = (2 * log (x)) / (x * (1 + log(x) * log (x) + log(y) * log(y)));
+  // y   (2 log(y))/(y (log^2(x) + log^2(y) + 1))
   out[1] = (2 * log (y)) / (y * (1 + log(y) * log (y) + log(x) * log(x)));
 }
 
-void df2(double x, double y, double* out)
-{
-  out[0] = (4*x*(x*x + y) + 2*x) / ((x*x + y)*(x*x + y) + x*x + 1);
-  out[1] = (2*(y + x*x)) / ((y + x*x)*(y + x*x) + x*x + 1);
+void df2(double x, double y, double* out) {
+  // x   (2 (2 x^3 - 2 x y + x))/((x^2 - y)^2 + x^2 + 1)
+  out[0] = (2*(2*x*x*x - 2*x*y + x))/(pow(x*x - y, 2) + x*x + 1)
+  // y  -(2 (x^2 - y))/((x^2 - y)^2 + x^2 + 1)
+  out[1] = -1 * (2*(x*x - y))/(pow(x*x - y, 2) + x*x + 1)
 }
 
 void Hf1 (double x, double y, double* out)
@@ -51,10 +53,11 @@ void Hf2 (double x, double y, double* out)
   out[3] = -1 * (2*(pow(x,4) + x*x*(2*y - 1) + y*y - 1))/pow(pow(x,4) + x*x*(2*y + 1) + y*y + 1, 2);
 }
 
-void newton (string name, double precision, int max_iterations, double *out, void (*d_function)(double, double, double*), double (*function)(double, double))
+void newton (string name, double precision, int max_iterations, double *out, void (*d_function)(double, double, double*), double (*h_function)(double, double, double*))
 {
   int current_iteration = 0;
   double grad [2] = {0, 0};
+  double hess [4] = {0, 0, 0, 0};
   double tmp [2] = {0, 0};
   out[0] = out[1] = 10;
 
@@ -69,6 +72,7 @@ void newton (string name, double precision, int max_iterations, double *out, voi
     memcpy(&tmp, out, 2 * sizeof(double));
     // calculate new derivate
     d_function(tmp[0], tmp[1], grad);
+    h_function(tmp[0], tmp[1], hess);
     double f_value = function(out[0], out[1]);
 
     cout << "out[0]: " <<out[0]<<" func: " << f_value << " der[0]: " << grad[0] << " ratio: " << f_value / grad[0] << " final: " << out[0] - f_value / grad[0] << endl;
