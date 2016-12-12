@@ -5,12 +5,14 @@
 
 using namespace std;
 
-void df1(double x, double y, double* out) {
+void df1(double x, double y, double* out)
+{
   out[0] = (2 * log (x)) / (x * (1 + log(x) * log (x) + log(y) * log(y)));
   out[1] = (2 * log (y)) / (y * (1 + log(y) * log (y) + log(x) * log(x)));
 }
 
-void df2(double x, double y, double* out) {
+void df2(double x, double y, double* out)
+{
   out[0] = (4*x*(x*x + y) + 2*x) / ((x*x + y)*(x*x + y) + x*x + 1);
   out[1] = (2*(y + x*x)) / ((y + x*x)*(y + x*x) + x*x + 1);
 }
@@ -30,7 +32,7 @@ void gradient (string name, double precision, double gamma, int max_iterations, 
   //main loop
   while (current_iteration < max_iterations)
   {
-    //old_arr = new_arr;
+    //tmp = out;
     memcpy(&tmp, out, 2 * sizeof(double));
     // calculate new derivate
     d_function(tmp[0], tmp[1], grad);
@@ -46,7 +48,6 @@ void gradient (string name, double precision, double gamma, int max_iterations, 
 
 int main()
 {
-  double old_arr [2] = {0, 0};
   // starting point
   double new_arr [2] = {10, 10};
   // step size
@@ -59,7 +60,6 @@ int main()
   gradient("F1",precision, gamma, max_iterations, new_arr, df1);
 
   gradient("F2",precision, gamma, max_iterations, new_arr, df2);
-
 
   cout << "Exiting..." << endl;
   //cin.ignore();
