@@ -30,25 +30,25 @@ void df2(double x, double y, double* out)
 void Hf1 (double x, double y, double* out)
 {
   //xx  -(2 (log(x) (log^2(y) + 1) + log^3(x) + log^2(x) - log^2(y) - 1))/(x^2 (log^2(x) + log^2(y) + 1)^2)
-  out[0] = -1*(2*(log(x)*(pow(log(y),2) + 1) + pow(log(x),3) + pow(log(x),2) - pow(log(y),2) - 1))/(x*x*pow((pow(log(x),2) + pow(log(y),2) + 1), 2));
+  out[0] = -1*(2*(log(x)*(pow(log(y),2) + 1) + pow(log(x),3) + pow(log(x),2) - pow(log(y),2) - 1))/(x*x*pow(pow(log(x),2) + pow(log(y),2) + 1, 2));
   //xy  -(4 log(x) log(y))/(x y (log^2(x) + log^2(y) + 1)^2)
   out[1] = -1*(4*log(x)*log(y))/(x*y*pow(pow(log(x),2) + pow(log(y),2) + 1, 2));
   //yx  -(4 log(x) log(y))/(x y (log^2(x) + log^2(y) + 1)^2)
   out[2] = -1*(4*log(x)*log(y))/(x*y*pow(pow(log(x),2) + pow(log(y),2) + 1, 2));
   //yy  -(2 (log^2(x) (log(y) - 1) + log^3(y) + log^2(y) + log(y) - 1))/(y^2 (log^2(x) + log^2(y) + 1)^2)
-  out[3] = -1*(2*(pow(log(x),2)*(log(y) - 1) + pow(log(y),3) + pow(log(y),2) + log(y) - 1))/(y*y*pow(pow(log(x)2,) + pow(log(y),2) + 1, 2));
+  out[3] = -1*(2*(pow(log(x),2)*(log(y) - 1) + pow(log(y),3) + pow(log(y),2) + log(y) - 1))/(y*y*pow(pow(log(x),2) + pow(log(y),2) + 1, 2));
 }
 
 void Hf2 (double x, double y, double* out)
 {
-  //xx    (4 (x^2 + y) + 8 x^2 + 2)/((x^2 + y)^2 + x^2 + 1) - (4 x (x^2 + y) + 2 x)^2/((x^2 + y)^2 + x^2 + 1)^2
-  out[0] = (4*(x*x + y) + 8*x*x + 2)/(pow(x*x + y,2) + x*x + 1) - (4*x (x*x + y) + 2*x)^2/pow(pow(x*x + y,2) + x*x + 1, 2);
-  //xy   -(4 x (x^4 + 2 x^2 y + y^2 + y - 1))/(x^4 + x^2 (2 y + 1) + y^2 + 1)^2
-  out[1] = -1 * (4*x (pow(x,4) + 2*x*x y + y*y + y - 1))/pow(pow(x,4) + x*x (2*y + 1) + y*2 + 1, 2);
-  //yx   -(4 x (x^4 + 2 x^2 y + y^2 + y - 1))/(x^4 + x^2 (2 y + 1) + y^2 + 1)^2
-  out[2] =  -1 *(4*x (pow(x, 4) + 2 x*x*y + y*y + y - 1))/pow(pow(x,4) + x*x*(2*y + 1) + y*y + 1, 2);
-  //yy   -(2 (x^4 + x^2 (2 y - 1) + y^2 - 1))/(x^4 + x^2 (2 y + 1) + y^2 + 1)^2
-  out[3] = -1 * (2*(pow(x,4) + x*x*(2*y - 1) + y*y - 1))/pow(x,4) + x*x (2*y + 1) + y*y + 1, 2);
+  //xx    (2 (-2 x^6 + x^4 (2 y - 1) + x^2 (2 y^2 + 4 y + 5) - 2 y^3 + y^2 - 2 y + 1))/(x^4 + x^2 (1 - 2 y) + y^2 + 1)^2
+  out[0] = (2*(-2*pow(x,6) + pow(x,4)*(2*y - 1) + x*x*(2*y*y + 4*y + 5) - 2*y*y*y + y*y - 2*y + 1))/pow(pow(x,4) + x*x*(1 - 2*y) + y*y + 1, 2);
+  //xy    (4 x (x^4 - 2 x^2 y + y^2 - y - 1))/(x^4 + x^2 (1 - 2 y) + y^2 + 1)^2
+  out[1] = (4*x*(pow(x,4) - 2*x*x*y + y*y - y - 1))/pow(pow(x,4) + x*x*(1 - 2*y) + y*y + 1, 2);
+  //yx    (4 x (x^4 - 2 x^2 y + y^2 - y - 1))/(x^4 + x^2 (1 - 2 y) + y^2 + 1)^2
+  out[2] = (4*x*(pow(x,4) - 2*x*x*y + y*y - y - 1))/pow(pow(x,4) + x*x*(1 - 2*y) + y*y + 1, 2);
+  //yy   -(2 (x^4 - x^2 (2 y + 1) + y^2 - 1))/(x^4 + x^2 (1 - 2 y) + y^2 + 1)^2
+  out[3] = -1 * (2*(pow(x,4) + x*x*(2*y - 1) + y*y - 1))/pow(pow(x,4) + x*x*(2*y + 1) + y*y + 1, 2);
 }
 
 void newton (string name, double precision, int max_iterations, double *out, void (*d_function)(double, double, double*), double (*function)(double, double))

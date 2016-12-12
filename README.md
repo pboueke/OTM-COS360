@@ -32,7 +32,7 @@
 
 * **Mínimo**: (1, 1)
 
-#### f(x1, x2) = ln(1 + x1^2 + (x1^2 + x2)^2)
+#### f(x1, x2) = ln(1 + x1^2 + (x1^2 - x2)^2)
 
 * **Gráfico**
 ![function 2](https://github.com/pboueke/OTM-COS360/blob/master/img/func2.gif?raw=true | width=250)
