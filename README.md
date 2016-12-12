@@ -38,7 +38,7 @@
 ![function 2](https://github.com/pboueke/OTM-COS360/blob/master/img/func2.gif?raw=true | width=250)
 
 * **Derivada**
-##### (4\*x1\*(x1^2 + x2) + 2\*x1) / ((x1^2 + x2)^2 + x1^2 + 1)
-##### (2\*(x2 + x1^2)) / ((x2 + x1^2)^2 + x1^2 + 1)
+##### (4\*x1\*(x1^2 + x2) + 2\*x1) / ((x1^2 + x2)^2 + x1^2 + 1) em x1
+##### (2\*(x2 + x1^2)) / ((x2 + x1^2)^2 + x1^2 + 1) em x2
 
 * **Mínimo**: (0, 0)
