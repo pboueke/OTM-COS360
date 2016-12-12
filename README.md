@@ -27,7 +27,7 @@
 ![function 1](https://github.com/pboueke/OTM-COS360/blob/master/img/func1.gif?raw=true | width=250)
 
 * **Derivada**
-##### (2*ln(x1)) / x1*(1 + ln(x1)^2 + ln(x2)^2)
+##### (2\*ln(x1)) / x1\*(1 + ln(x1)^2 + ln(x2)^2)
 
 * **Mínimo**: (1, 1)
 
@@ -37,6 +37,6 @@
 ![function 2](https://github.com/pboueke/OTM-COS360/blob/master/img/func2.gif?raw=true | width=250)
 
 * **Derivada**
-##### (4*x1*(x1^2 + x2) + 2*x1)/((x1^2 + x2) + x1^2 + 1)
+##### (4\*x1\*(x1^2 + x2) + 2\*x1) / ((x1^2 + x2) + x1^2 + 1)
 
 * **Mínimo**: (0, 0)
