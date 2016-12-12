@@ -83,6 +83,7 @@ void gradient (string name, double precision, double gamma, int max_iterations, 
   int current_iteration = 0;
   double grad [2] = {0, 0};
   double tmp [2] = {0, 0};
+  double last_out [2] = {0, 0};
   out[0] = out[1] = 10;
 
   cout << "Starting Gradient descent.\nParameters:" << endl;
@@ -98,22 +99,25 @@ void gradient (string name, double precision, double gamma, int max_iterations, 
       //cout << "Iteration: " << current_iteration << endl;
     }
     //tmp = out;
-    memcpy(&tmp, out, 2 * sizeof(double));
+    //memcpy(&tmp, out, 2 * sizeof(double));
     // calculate new derivate
-    d_function(tmp[0], tmp[1], grad);
-    out[0] += -gamma * grad[0];
-    out[1] += -gamma * grad[1];
+    d_function(out[0], out[1], grad);
+    tmp[0] += -gamma * grad[0];
+    tmp[1] += -gamma * grad[1];
 
     //cout << "Iteration: " << current_iteration << " Golden Search" << endl;
     // golden section search
-    double t = goldenSectionSearch(precision, 0, 10, tmp, out, function);
+    double t = goldenSectionSearch(precision, 0, 10, out, tmp, function);
 
-    out[0] = out[0] + t * out[0];
-    out[1] = out[1] + t * out[1];
+    last_out[0] = out[0];
+    last_out[1] = out[1];
+
+    out[0] = out[0] + t * tmp[0];
+    out[1] = out[1] + t * tmp[1];
 
     current_iteration += 1;
 
-    if ((abs(out[0] - tmp[0]) < precision) && (abs(out[1] - tmp[1]) < precision))
+    if ((abs(out[0] - last_out[0]) < precision) && (abs(out[1] - last_out[1]) < precision))
     {
       break;
     }
@@ -130,10 +134,10 @@ int main()
   double new_arr [2] = {10, 10};
   // step size
   double gamma = 0.01;
-  // precision neede for stop
+  // precision needed for stop
   double precision = 0.0000001;
   // max iterations
-  int max_iterations = 100000;
+  int max_iterations = 1000000;
 
   gradient("F1",precision, gamma, max_iterations, new_arr, df1, f1);
 

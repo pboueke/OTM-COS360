@@ -39,6 +39,11 @@ void gradient (string name, double precision, double gamma, int max_iterations, 
     out[0] += -gamma * grad[0];
     out[1] += -gamma * grad[1];
     current_iteration += 1;
+    
+    if ((abs(out[0] - tmp[0]) < precision) && (abs(out[1] - tmp[1]) < precision))
+    {
+      break;
+    }
   }
   cout << "Proccess finalized for " << name <<". Result: (" << out[0] << ", " << out[1] << ")" << endl;
   cout << "Total iterations: " << current_iteration << endl;
