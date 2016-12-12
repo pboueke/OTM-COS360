@@ -24,9 +24,9 @@ void df1(double x, double y, double* out) {
 
 void df2(double x, double y, double* out) {
   // x   (2 (2 x^3 - 2 x y + x))/((x^2 - y)^2 + x^2 + 1)
-  out[0] = (2*(2*x*x*x - 2*x*y + x))/(pow(x*x - y, 2) + x*x + 1)
+  out[0] = (2*(2*x*x*x - 2*x*y + x))/(pow(x*x - y, 2) + x*x + 1);
   // y  -(2 (x^2 - y))/((x^2 - y)^2 + x^2 + 1)
-  out[1] = -1 * (2*(x*x - y))/(pow(x*x - y, 2) + x*x + 1)
+  out[1] = -1 * (2*(x*x - y))/(pow(x*x - y, 2) + x*x + 1);
 }
 
 void Hf1 (double x, double y, double* out)
