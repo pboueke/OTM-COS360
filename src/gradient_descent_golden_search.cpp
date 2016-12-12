@@ -34,11 +34,8 @@ double goldenSectionSearch (double precision, double in_a, double in_b, double *
   double c = (in_a + in_b) / 2; //center
   double b = in_b;
 
-  //cout << "GSS in (a, b, c): (" << a << ", "<<b<<", "<<c<<")   "<< endl;
-
   while (f(x[0]+c*dx[0], x[1]+c*dx[1]) < f(x[0]+c*dx[0], x[1]+c*dx[1]))
   {
-    cout << f(x[0]+c*dx[0], x[1]+c*dx[1]) << " < " << f(x[0]+c*dx[0], x[1]+c*dx[1]) << endl;
     a = c;
     c = b;
     b = b + (c - a);
@@ -47,7 +44,6 @@ double goldenSectionSearch (double precision, double in_a, double in_b, double *
   double d = a + (1 - gr) * (b - a);
   double e = a + gr * (b - a);
 
-  //cout << "GSS reduced (a, b, c, d, e): ("<<a<<", "<<b<<", "<<c<<", "<<d<<", "<<e<<")"<< endl;
   double aux_a = a;
   double aux_b = b;
 
@@ -74,7 +70,6 @@ double goldenSectionSearch (double precision, double in_a, double in_b, double *
     aux_b = b;
 
   }
-  //cout << "GSS final (a, b, c, d, e): ("<<a<<", "<<b<<", "<<c<<", "<<d<<", "<<e<<")"<< endl;
   return (a + b) / 2;
 }
 
@@ -94,18 +89,15 @@ void gradient (string name, double precision, double gamma, int max_iterations, 
   //main loop
   while (current_iteration < max_iterations)
   {
-    if (current_iteration%1000 == 0)
+    if (current_iteration%5000 == 0)
     {
-      //cout << "Iteration: " << current_iteration << endl;
+      cout << "Iteration: " << current_iteration << endl;
     }
-    //tmp = out;
-    //memcpy(&tmp, out, 2 * sizeof(double));
     // calculate new derivate
     d_function(out[0], out[1], grad);
     tmp[0] += -gamma * grad[0];
     tmp[1] += -gamma * grad[1];
 
-    //cout << "Iteration: " << current_iteration << " Golden Search" << endl;
     // golden section search
     double t = goldenSectionSearch(precision, 0, 10, out, tmp, function);
 
@@ -124,8 +116,6 @@ void gradient (string name, double precision, double gamma, int max_iterations, 
   }
   cout << "Proccess finalized for " << name <<". Result: (" << out[0] << ", " << out[1] << ")" << endl;
   cout << "Total iterations: " << current_iteration << endl;
-  //delete [] grad;
-  //delete [] tmp;
 }
 
 int main()
@@ -141,6 +131,7 @@ int main()
 
   gradient("F1",precision, gamma, max_iterations, new_arr, df1, f1);
 
+  // is F2 unimodal?
   gradient("F2",precision, gamma, max_iterations, new_arr, df2, f2);
 
   cout << "Exiting..." << endl;
