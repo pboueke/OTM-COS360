@@ -112,29 +112,50 @@ double goldenSectionSearch (double precision, double in_a, double in_b, double *
   return (a + b) / 2;
 }
 
-void newton (string name, double precision, int max_iterations, double *out, double (*function) (double, double), void (*d_function)(double, double, double*), void (*h_function)(double, double, double*))
+void quasiNewton (string name, double precision, int max_iterations, double *out, double (*function) (double, double), void (*d_function)(double, double, double*), void (*h_function)(double, double, double*))
 {
   int current_iteration = 0;
   double grad [2] = {0, 0};
-  double hess [4] = {0, 0, 0, 0};
-  double inv_hess [4] = {0, 0, 0, 0};
+  double est_inv_hess [4] = {0, 0, 0, 0};
   double dk [2] = {0, 0};
   double tmp [2] = {0, 0};
+  double p [2] = {0, 0};
+  double q [2] = {0, 0};
   out[0] = out[1] = 1.3;
 
-  cout << "Starting Newton method.\nParameters:" << endl;
+  cout << "Starting Quasi-Newtonn method.\nParameters:" << endl;
   cout << "Precision: " << precision << endl;
   cout << "Max number of iterations: " << max_iterations << endl;
   cout << "Starting..." << endl;
+
+  //initialize H
+  h_function(out[0], out[1], est_inv_hess);
+
   //main loop
   while (current_iteration < max_iterations)
   {
-    //tmp = out;
-    memcpy(&tmp, out, 2 * sizeof(double));
-    // calculate new derivate
+    //tmp = x[k-1]
+
+    // p = x[k] - x[k-1]
+    p[0] = out[0] - tmp[0];
+    p[1] = out[1] - tmp[1];
+
     d_function(tmp[0], tmp[1], grad);
-    h_function(tmp[0], tmp[1], hess);
-    invert2dmatrix(hess, inv_hess);
+
+    // q = grad(x[k]) - grad(x[k-1])
+    q[0] = -1 * grad[0];
+    q[1] = -1 * grad[1];
+
+    memcpy(&tmp, out, 2 * sizeof(double));
+    //tmp = x[k];
+    d_function(tmp[0], tmp[1], grad);
+
+    q[0] += grad[0];
+    q[1] += grad[1];
+
+    //BFGS?
+    //h[k] = h[k-1] + (1+(qk^T*Hk*qk)*(pk^T*qk)^-1)*((pk*pk^-T)*(pk^T*qk)^-1) - ((pk*qk^T*Hk + Hk*qk*pk^T)*(pk^T*qk)^-1)
+    // update est_inv_hess
 
     if (grad[0] == 0 && grad[1] == 0)
     {
@@ -144,13 +165,12 @@ void newton (string name, double precision, int max_iterations, double *out, dou
 
     if (current_iteration%100 == 0 || DEBUG)
     {
-      cout << "HESS: "<<  hess[0]<<", "<<hess[1]<<", "<<hess[2]<<", "<<hess[3]<<endl;
-      cout << "i_HESS: "<<  inv_hess[0]<<", "<<inv_hess[1]<<", "<<inv_hess[2]<<", "<<inv_hess[3]<<endl;
+      cout << "i_HESS: "<<  est_inv_hess[0]<<", "<<est_inv_hess[1]<<", "<<est_inv_hess[2]<<", "<<est_inv_hess[3]<<endl;
       cout << "GRAD: "<<  grad[0]<<", "<<grad[1]<<endl;
     }
 
-    dk[0] = -1 * (inv_hess[0]*grad[0] + inv_hess[1]*grad[1]);
-    dk[1] = -1 * (inv_hess[2]*grad[0] + inv_hess[3]*grad[1]);
+    dk[0] = -1 * (est_inv_hess[0]*grad[0] + est_inv_hess[1]*grad[1]);
+    dk[1] = -1 * (est_inv_hess[2]*grad[0] + est_inv_hess[3]*grad[1]);
 
     double t = 1;//goldenSectionSearch(precision, 0, 10, out, dk, function);
 
@@ -190,9 +210,9 @@ int main()
   // max iterations
   int max_iterations = 100;
 
-  newton("F1",precision, max_iterations, new_arr, f1, df1, Hf1);
+  quasiNewton("F1",precision, max_iterations, new_arr, f1, df1, Hf1);
 
-  newton("F2",precision, max_iterations, new_arr, f2, df2, Hf2);
+  quasiNewton("F2",precision, max_iterations, new_arr, f2, df2, Hf2);
 
   cout << "Exiting..." << endl;
   //cin.ignore();
