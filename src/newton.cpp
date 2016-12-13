@@ -64,52 +64,42 @@ void invert2dmatrix (double* original, double* inverted)
   inverted[3] = original[0] * idet;
 }
 
-double goldenSectionSearch (double precision, double in_a, double in_b, double *x, double *dx, double (*f) (double, double))
+double goldenSectionSearch(double precision, double in_a, double in_b, double *x, double *dx, double(*f) (double, double))
 {
-  const double gr = ((sqrt(5)-1) / 2);
+	const double theta1 = ((3-sqrt(5)) / 2);
+	const double theta2 = 1 - theta1;
 
-  // initialize bounds
-  double a = in_a;
-  double c = (in_a + in_b) / 2; //center
-  double b = in_b;
+	// initialize bounds
+	double a = in_a;
+	double c = (in_a + in_b) / 2; //center
+	double b = in_b;
 
-  while (f(x[0]+c*dx[0], x[1]+c*dx[1]) < f(x[0]+c*dx[0], x[1]+c*dx[1]))
-  {
-    a = c;
-    c = b;
-    b = b + (c - a);
-  }
+	while (f(x[0] + c*dx[0], x[1] + c*dx[1]) < f(x[0] + c*dx[0], x[1] + c*dx[1]))
+	{
+		a = c;
+		c = b;
+		b = 2*b;
+	}
 
-  double d = a + (1 - gr) * (b - a);
-  double e = a + gr * (b - a);
+	double u = a + theta1 * (b - a);
+	double v = a + theta2 * (b - a);
 
-  double aux_a = a;
-  double aux_b = b;
-
-  while (b - a > precision)
-  {
-    if (f(x[0]+d*dx[0], x[1]+d*dx[1]) < f(x[0]+e*dx[0], x[1]+e*dx[1]))
-    {
-      b = e;
-      e = d;
-      d = a + (1 - gr) * (b - a);
-    }
-    else
-    {
-      a = d;
-      d = e;
-      e = a + gr * (b - a);
-    }
-
-    if ((aux_a == a) && (aux_b == b))
-    {
-      break;
-    }
-    aux_a = a;
-    aux_b = b;
-
-  }
-  return (a + b) / 2;
+	while (b - a > precision)
+	{
+		if (f(x[0] + u*dx[0], x[1] + u*dx[1]) < f(x[0] + v*dx[0], x[1] + v*dx[1]))
+		{
+			b = v;
+			v = u;
+			u = a + theta1 * (b - a);
+		}
+		else
+		{
+			a = u;
+			u = v;
+			v = a + theta1 * (b - a);
+		}
+	}
+	return (u + v) / 2;
 }
 
 void newton (string name, double precision, int max_iterations, double *out, double (*function) (double, double), void (*d_function)(double, double, double*), void (*h_function)(double, double, double*))
