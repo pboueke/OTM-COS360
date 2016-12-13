@@ -3,6 +3,8 @@
 #include <cstring>
 #include "string.h"
 
+#define DEBUG true
+
 using namespace std;
 
 double f1 (double x, double y)
@@ -56,7 +58,7 @@ void Hf2 (double x, double y, double* out)
 void invert2dmatrix (double* original, double* inverted)
 {
   double idet = 1 / (original[0]*original[3]-original[1]*original[2]);
-  inverted[0] = original[4] * idet;
+  inverted[0] = original[3] * idet;
   inverted[1] = original[1] * idet * -1;
   inverted[2] = original[2] * idet * -1;
   inverted[3] = original[0] * idet;
@@ -140,21 +142,30 @@ void newton (string name, double precision, int max_iterations, double *out, dou
       break;
     }
 
-    cout << "HESS: "<<  hess[0]<<", "<<hess[1]<<", "<<hess[2]<<", "<<hess[3]<<endl;
-    cout << "i_HESS: "<<  inv_hess[0]<<", "<<inv_hess[1]<<", "<<inv_hess[2]<<", "<<inv_hess[3]<<endl;
-    cout << "GRAD: "<<  grad[0]<<", "<<grad[1]<<endl;
+    if (current_iteration%100 == 0 || DEBUG)
+    {
+      cout << "HESS: "<<  hess[0]<<", "<<hess[1]<<", "<<hess[2]<<", "<<hess[3]<<endl;
+      cout << "i_HESS: "<<  inv_hess[0]<<", "<<inv_hess[1]<<", "<<inv_hess[2]<<", "<<inv_hess[3]<<endl;
+      cout << "GRAD: "<<  grad[0]<<", "<<grad[1]<<endl;
+    }
 
     dk[0] = -1 * (inv_hess[0]*grad[0] + inv_hess[1]*grad[1]);
     dk[1] = -1 * (inv_hess[2]*grad[0] + inv_hess[3]*grad[1]);
 
-    double t = goldenSectionSearch(precision, 0, 10, out, dk, function);
+    double t = 1;//goldenSectionSearch(precision, 0, 10, out, dk, function);
 
-    cout << "Dk: "<<dk[0]<<" "<<dk[1]<< " t: "<<t<<endl;
+    if (current_iteration%100 == 0  || DEBUG)
+    {
+      cout << "Dk: "<<dk[0]<<" "<<dk[1]<< " t: "<<t<<endl;
+    }
 
     out[0] += t * dk[0];
     out[1] += t * dk[1];
 
-    cout <<"Iteration: " << current_iteration <<" Result: (" << out[0] << ", " << out[1] << ")" << endl;
+    if (current_iteration%100 == 0 || DEBUG)
+    {
+      cout <<"Iteration: " << current_iteration <<" Result: (" << out[0] << ", " << out[1] << ")" << endl;
+    }
 
     current_iteration += 1;
 
@@ -177,11 +188,11 @@ int main()
   // precision neede for stop
   double precision = 0.00001;
   // max iterations
-  int max_iterations = 100000;
+  int max_iterations = 5;
 
-  newton("F1",precision, 100, new_arr, f1, df1, Hf1);
+  newton("F1",precision, max_iterations, new_arr, f1, df1, Hf1);
 
-  //newton("F2",precision, max_iterations, new_arr, df2, f2);
+  //newton("F2",precision, max_iterations, new_arr, f2, df2, Hf2);
 
   cout << "Exiting..." << endl;
   //cin.ignore();
