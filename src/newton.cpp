@@ -169,8 +169,8 @@ void newton (string name, double precision, int max_iterations, double *out, dou
       cout << "Dk: "<<dk[0]<<" "<<dk[1]<< " t: "<<t<<endl;
     }
 
-    out[0] -= t * dk[0];
-    out[1] -= t * dk[1];
+    out[0] += t * dk[0];
+    out[1] += t * dk[1];
 
     if (current_iteration%DEBUG_SPACING == 0 || DEBUG)
     {
@@ -208,12 +208,12 @@ int main()
   // max iterations
   int max_iterations = MAX_ITERATIONS;
 
-  new_arr[0] = 1.1;
-  new_arr[1] = 1.1;
+  new_arr[0] = 1.5;
+  new_arr[1] = 1.5;
   newton("F1",precision, max_iterations, new_arr, f1, df1, Hf1);
 
-  new_arr[0] = 0.1;
-  new_arr[1] = 0.1;
+  new_arr[0] = 0.3;
+  new_arr[1] = 0.3;
   newton("F2",precision, max_iterations, new_arr, f2, df2, Hf2);
 
   cout << "Exiting..." << endl;
