@@ -1,6 +1,6 @@
 # OTM-COS360
 
-## Relatório do trabalho da disciplina [Otimização (COS360) - UFRJ](http://www.cos.ufrj.br/~luidi/cos360/otim.html)
+## Trabalho da disciplina [Otimização (COS360) - UFRJ](http://www.cos.ufrj.br/~luidi/cos360/otim.html)
 
 **2016/P2**: Terças e quintas de 15:00-17:00
 
