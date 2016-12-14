@@ -4,6 +4,16 @@
 #include "string.h"
 
 #define DEBUG false
+#define DEBUG_SPACING 100000000
+
+#define DELTAF false
+#define LASTX false
+#define ITERX true
+
+#define DELTAF_PRECISION 0.0000001
+#define PRECISION 0.0000001
+#define MAX_ITERATIONS 100000
+
 
 using namespace std;
 
@@ -110,12 +120,12 @@ void newton (string name, double precision, int max_iterations, double *out, dou
   double inv_hess [4] = {0, 0, 0, 0};
   double dk [2] = {0, 0};
   double tmp [2] = {0, 0};
-  out[0] = out[1] = 1.3;
 
   cout << "Starting Newton method.\nParameters:" << endl;
   cout << "Precision: " << precision << endl;
   cout << "Max number of iterations: " << max_iterations << endl;
   cout << "Starting..." << endl;
+  cout << "---------------------------------------------" << endl;
   //main loop
   while (current_iteration < max_iterations)
   {
@@ -132,7 +142,7 @@ void newton (string name, double precision, int max_iterations, double *out, dou
       break;
     }
 
-    if (current_iteration%100 == 0 || DEBUG)
+    if (current_iteration%DEBUG_SPACING == 0 || DEBUG)
     {
       cout << "HESS: "<<  hess[0]<<", "<<hess[1]<<", "<<hess[2]<<", "<<hess[3]<<endl;
       cout << "i_HESS: "<<  inv_hess[0]<<", "<<inv_hess[1]<<", "<<inv_hess[2]<<", "<<inv_hess[3]<<endl;
@@ -142,9 +152,9 @@ void newton (string name, double precision, int max_iterations, double *out, dou
     dk[0] = -1 * (inv_hess[0]*grad[0] + inv_hess[1]*grad[1]);
     dk[1] = -1 * (inv_hess[2]*grad[0] + inv_hess[3]*grad[1]);
 
-    double t = 1;//goldenSectionSearch(precision, 0, 10, out, dk, function);
+    double t = goldenSectionSearch(precision, 0, 10, out, dk, function);
 
-    if (current_iteration%100 == 0  || DEBUG)
+    if (current_iteration%DEBUG_SPACING == 0  || DEBUG)
     {
       cout << "Dk: "<<dk[0]<<" "<<dk[1]<< " t: "<<t<<endl;
     }
@@ -152,36 +162,48 @@ void newton (string name, double precision, int max_iterations, double *out, dou
     out[0] += t * dk[0];
     out[1] += t * dk[1];
 
-    if (current_iteration%100 == 0 || DEBUG)
+    if (current_iteration%DEBUG_SPACING == 0 || DEBUG)
     {
-      cout <<"Iteration: " << current_iteration <<" Result: (" << out[0] << ", " << out[1] << ")" << endl;
+      cout <<"Iteration: " << current_iteration <<" Result: (" << out[0] << ", " << out[1] << ") Value: " << function(out[0], out[1]) << endl;
+      cout << "---------------------------------------------" << endl;
     }
 
     current_iteration += 1;
 
-    if ((abs(out[0] - tmp[0]) < precision) && (abs(out[1] - tmp[1]) < precision))
-    {
-      cout << "Precision Exit" << endl;
-      break;
-    }
+    if ((current_iteration > max_iterations) && ITERX)
+		{
+			break;
+		}
+		if ((abs(function(out[0], out[1]) - function(tmp[0], tmp[1])) < DELTAF_PRECISION) && DELTAF)
+		{
+			break;
+		}
+		if (((abs(out[0] - tmp[0]) < precision) && (abs(out[1] - tmp[1]) < precision)) && LASTX)
+		{
+			break;
+		}
   }
-  cout << "Proccess finalized for " << name <<". Result: (" << out[0] << ", " << out[1] << ")" << endl;
+  cout << "Proccess finalized for " << name <<". Result: (" << out[0] << " " << out[1] << ") Value: " << function(out[0], out[1]) << endl;
   cout << "Total iterations: " << current_iteration << endl;
+  cout << "\n\n=========================================\n\n";
+
 }
 
 int main()
 {
   // starting point
-  double new_arr [2] = {10, 10};
-  // step size
-  double gamma = 0.01;
+  double new_arr [2];
   // precision neede for stop
-  double precision = 0.00001;
+  double precision = PRECISION;
   // max iterations
-  int max_iterations = 100;
+  int max_iterations = MAX_ITERATIONS;
 
+  new_arr[0] = 0.5;
+  new_arr[1] = 0.5;
   newton("F1",precision, max_iterations, new_arr, f1, df1, Hf1);
 
+  new_arr[0] = 0.5;
+  new_arr[1] = 0.5;
   newton("F2",precision, max_iterations, new_arr, f2, df2, Hf2);
 
   cout << "Exiting..." << endl;
