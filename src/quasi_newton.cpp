@@ -1,9 +1,10 @@
 #include <iostream>
 #include <cmath>
 #include <cstring>
+#include "stdlib.h"
 #include "string.h"
 
-#define DEBUG false
+#define DEBUG true
 
 using namespace std;
 
@@ -33,14 +34,14 @@ void df2(double x, double y, double* out) {
 
 void Hf1 (double x, double y, double* out)
 {
-  //xx  -(2 (log(x) (log^2(y) + 1) + log^3(x) + log^2(x) - log^2(y) - 1))/(x^2 (log^2(x) + log^2(y) + 1)^2)
-  out[0] = -1*(2*(log(x)*(pow(log(y),2) + 1) + pow(log(x),3) + pow(log(x),2) - pow(log(y),2) - 1))/(x*x*pow(pow(log(x),2) + pow(log(y),2) + 1, 2));
+  // xx (-(4 log^2(x))/(x^2 (log^2(x) + log^2(y) + 1)^2) - (2 log(x))/(x^2 (log^2(x) + log^2(y) + 1)) + 2/(x^2 (log^2(x) + log^2(y) + 1))
+  out[0] = (-(4*pow(log(x),2))/(x*x*pow((pow(log(x), 2) + pow(log(y), 2) + 1), 2)) - (2*log(x))/(x*x*(pow(log(x), 2) + pow(log(y), 2) + 1)) + 2/(x*x*(pow(log(x), 2) + pow(log(y), 2) + 1)));
   //xy  -(4 log(x) log(y))/(x y (log^2(x) + log^2(y) + 1)^2)
   out[1] = -1*(4*log(x)*log(y))/(x*y*pow(pow(log(x),2) + pow(log(y),2) + 1, 2));
   //yx  -(4 log(x) log(y))/(x y (log^2(x) + log^2(y) + 1)^2)
   out[2] = -1*(4*log(x)*log(y))/(x*y*pow(pow(log(x),2) + pow(log(y),2) + 1, 2));
-  //yy  -(2 (log^2(x) (log(y) - 1) + log^3(y) + log^2(y) + log(y) - 1))/(y^2 (log^2(x) + log^2(y) + 1)^2)
-  out[3] = -1*(2*(pow(log(x),2)*(log(y) - 1) + pow(log(y),3) + pow(log(y),2) + log(y) - 1))/(y*y*pow(pow(log(x),2) + pow(log(y),2) + 1, 2));
+  //yy  -(4 log^2(y))/(y^2 (log^2(x) + log^2(y) + 1)^2) - (2 log(y))/(y^2 (log^2(x) + log^2(y) + 1)) + 2/(y^2 (log^2(x) + log^2(y) + 1)))
+  out[3] = (-(4*pow(log(y),2))/(y*y*pow((pow(log(x), 2) + pow(log(y), 2) + 1), 2)) - (2*log(y))/(y*y*(pow(log(x), 2) + pow(log(y), 2) + 1)) + 2/(y*y*(pow(log(x), 2) + pow(log(y), 2) + 1)));
 }
 
 void Hf2 (double x, double y, double* out)
@@ -102,16 +103,64 @@ double goldenSectionSearch(double precision, double in_a, double in_b, double *x
 	return (u + v) / 2;
 }
 
+void update_est_inv_hess(double *hess, double *p, double *q) {
+  double old_hess[4];
+  for (int i = 0; i < 4; i++) {
+    cout << "OLDHESS: " << hess[i] << endl;
+    old_hess[i] = hess[i];
+  }
+  double common_divider = p[0]*q[0] + p[1]*q[1];
+
+  double first_factor = 1;
+  double first_ratio = q[0] * (q[0]*old_hess[0] + q[1]*old_hess[2]);
+  first_ratio += q[1] * (q[0]*old_hess[1] + q[1]*old_hess[3]);
+  first_ratio /= common_divider;
+  first_factor += first_ratio;
+
+  double first_matrix[4];
+  first_matrix[0] = p[0]*p[0];
+  first_matrix[1] = p[0]*p[1];
+  first_matrix[2] = p[1]*p[0];
+  first_matrix[3] = p[1]*p[1];
+  for (int i = 0; i < 4; i++) {
+    first_matrix[i] *= first_ratio;
+    first_matrix[i] /= common_divider;
+  }
+
+  double aux_matrix_a[4];
+  aux_matrix_a[0] = old_hess[0]*p[0]*q[0] + old_hess[2]*p[0]*q[1];
+  aux_matrix_a[1] = old_hess[1]*p[0]*q[0] + old_hess[3]*p[0]*q[1];
+  aux_matrix_a[2] = old_hess[0]*p[1]*q[0] + old_hess[2]*p[1]*q[1];
+  aux_matrix_a[3] = old_hess[1]*p[1]*q[0] + old_hess[3]*p[1]*q[1];
+
+  double aux_matrix_b[4];
+  aux_matrix_b[0] = old_hess[0]*q[0]*p[0] + old_hess[1]*q[1]*p[0];
+  aux_matrix_b[1] = old_hess[0]*q[0]*p[1] + old_hess[1]*q[1]*p[1];
+  aux_matrix_b[2] = old_hess[2]*q[0]*p[0] + old_hess[3]*q[1]*p[0];
+  aux_matrix_b[3] = old_hess[2]*q[0]*p[1] + old_hess[3]*q[1]*p[1];
+
+  for (int i = 0; i < 4; i++) {
+    aux_matrix_a[i] += aux_matrix_b[i];
+    aux_matrix_a[i] /= common_divider;
+  }
+
+  for (int i = 0; i < 4; i++) {
+    hess[i] = old_hess[i] + first_matrix[i] - aux_matrix_a[i];
+    cout << "HESS: " << hess[i] << endl;
+  }
+  // exit(0);
+}
+
 void quasiNewton (string name, double precision, int max_iterations, double *out, double (*function) (double, double), void (*d_function)(double, double, double*), void (*h_function)(double, double, double*))
 {
   int current_iteration = 0;
   double grad [2] = {0, 0};
+  double est_hess [4] = {0, 0, 0, 0};
   double est_inv_hess [4] = {0, 0, 0, 0};
   double dk [2] = {0, 0};
-  double tmp [2] = {0, 0};
+  double tmp [2] = {1.1, 1.8};
   double p [2] = {0, 0};
   double q [2] = {0, 0};
-  out[0] = out[1] = 1.3;
 
   cout << "Starting Quasi-Newtonn method.\nParameters:" << endl;
   cout << "Precision: " << precision << endl;
@@ -119,7 +168,7 @@ void quasiNewton (string name, double precision, int max_iterations, double *out
   cout << "Starting..." << endl;
 
   //initialize H
-  h_function(out[0], out[1], est_inv_hess);
+  h_function(out[0], out[1], est_hess);
 
   //main loop
   while (current_iteration < max_iterations)
@@ -143,6 +192,9 @@ void quasiNewton (string name, double precision, int max_iterations, double *out
     q[0] += grad[0];
     q[1] += grad[1];
 
+    update_est_inv_hess(est_hess, p, q);
+    invert2dmatrix(est_hess, est_inv_hess);
+
     //BFGS?
     //h[k] = h[k-1] + (1+(qk^T*Hk*qk)*(pk^T*qk)^-1)*((pk*pk^-T)*(pk^T*qk)^-1) - ((pk*qk^T*Hk + Hk*qk*pk^T)*(pk^T*qk)^-1)
     // update est_inv_hess
@@ -162,7 +214,8 @@ void quasiNewton (string name, double precision, int max_iterations, double *out
     dk[0] = -1 * (est_inv_hess[0]*grad[0] + est_inv_hess[1]*grad[1]);
     dk[1] = -1 * (est_inv_hess[2]*grad[0] + est_inv_hess[3]*grad[1]);
 
-    double t = 1;//goldenSectionSearch(precision, 0, 10, out, dk, function);
+    // double t = goldenSectionSearch(precision, 0, 10, out, dk, function);
+    double t = 1;
 
     if (current_iteration%100 == 0  || DEBUG)
     {
@@ -192,7 +245,7 @@ void quasiNewton (string name, double precision, int max_iterations, double *out
 int main()
 {
   // starting point
-  double new_arr [2] = {10, 10};
+  double new_arr [2] = {0.1, 0.1};
   // step size
   double gamma = 0.01;
   // precision neede for stop
@@ -202,7 +255,9 @@ int main()
 
   quasiNewton("F1",precision, max_iterations, new_arr, f1, df1, Hf1);
 
-  quasiNewton("F2",precision, max_iterations, new_arr, f2, df2, Hf2);
+  // cout << "\n===========\n" << endl;
+
+  // quasiNewton("F2",precision, max_iterations, new_arr, f2, df2, Hf2);
 
   cout << "Exiting..." << endl;
   //cin.ignore();
