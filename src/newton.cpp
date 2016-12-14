@@ -126,6 +126,9 @@ void newton (string name, double precision, int max_iterations, double *out, dou
   cout << "Max number of iterations: " << max_iterations << endl;
   cout << "Starting..." << endl;
   cout << "---------------------------------------------" << endl;
+
+  d_function(out[0], out[1], grad);
+
   //main loop
   while (!(grad[0] == 0 && grad[1] == 0))
   {
@@ -176,8 +179,8 @@ void newton (string name, double precision, int max_iterations, double *out, dou
 
     if ((current_iteration > max_iterations) && ITERX)
 		{
-			break;
-		}
+			break;		}
+
 		if ((abs(function(out[0], out[1]) - function(tmp[0], tmp[1])) < DELTAF_PRECISION) && DELTAF)
 		{
 			break;
@@ -202,13 +205,13 @@ int main()
   // max iterations
   int max_iterations = MAX_ITERATIONS;
 
+  //new_arr[0] = 1.5;
+  //new_arr[1] = 1.5;
+  //newton("F1",precision, max_iterations, new_arr, f1, df1, Hf1);
+
   new_arr[0] = 1.5;
   new_arr[1] = 1.5;
-  newton("F1",precision, max_iterations, new_arr, f1, df1, Hf1);
-
-  new_arr[0] = 0.6;
-  new_arr[1] = 0.6;
-  //newton("F2",precision, max_iterations, new_arr, f2, df2, Hf2);
+  newton("F2",precision, max_iterations, new_arr, f2, df2, Hf2);
 
   cout << "Exiting..." << endl;
   //cin.ignore();
