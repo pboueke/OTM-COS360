@@ -6,13 +6,13 @@
 #define DEBUG false
 #define DEBUG_SPACING 100000
 
-#define DELTAF false
+#define DELTAF true
 #define LASTX false
 #define ITERX true
 
 #define DELTAF_PRECISION 0.0000001
 #define PRECISION 0.00001
-#define MAX_ITERATIONS 100000
+#define MAX_ITERATIONS 1000000
 
 
 using namespace std;
@@ -212,9 +212,9 @@ int main()
   new_arr[1] = 1.5;
   newton("F1",precision, max_iterations, new_arr, f1, df1, Hf1);
 
-  new_arr[0] = 0.3;
-  new_arr[1] = 0.3;
-  newton("F2",precision, max_iterations, new_arr, f2, df2, Hf2);
+  new_arr[0] = 0.6;
+  new_arr[1] = 0.6;
+  //newton("F2",precision, max_iterations, new_arr, f2, df2, Hf2);
 
   cout << "Exiting..." << endl;
   //cin.ignore();

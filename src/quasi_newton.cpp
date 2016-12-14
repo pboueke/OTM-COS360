@@ -5,7 +5,15 @@
 #include "string.h"
 
 #define DEBUG true
+#define DEBUG_SPACING 100000
 
+#define DELTAF false
+#define LASTX false
+#define ITERX true
+
+#define DELTAF_PRECISION 0.0000001
+#define PRECISION 0.00001
+#define MAX_ITERATIONS 30
 using namespace std;
 
 double f1 (double x, double y)
@@ -106,7 +114,7 @@ double goldenSectionSearch(double precision, double in_a, double in_b, double *x
 void update_est_inv_hess(double *hess, double *p, double *q) {
   double old_hess[4];
   for (int i = 0; i < 4; i++) {
-    cout << "OLDHESS: " << hess[i] << endl;
+    //cout << "OLDHESS: " << hess[i] << endl;
     old_hess[i] = hess[i];
   }
   double common_divider = p[0]*q[0] + p[1]*q[1];
@@ -146,7 +154,7 @@ void update_est_inv_hess(double *hess, double *p, double *q) {
 
   for (int i = 0; i < 4; i++) {
     hess[i] = old_hess[i] + first_matrix[i] - aux_matrix_a[i];
-    cout << "HESS: " << hess[i] << endl;
+    //cout << "HESS: " << hess[i] << endl;
   }
   // exit(0);
 }
@@ -155,69 +163,51 @@ void quasiNewton (string name, double precision, int max_iterations, double *out
 {
   int current_iteration = 0;
   double grad [2] = {0, 0};
-  double est_hess [4] = {0, 0, 0, 0};
-  double est_inv_hess [4] = {0, 0, 0, 0};
+  double est_inv_hess [4] = {1, 0, 0, 1};//I
+  double tmp_hess [4];
   double dk [2] = {0, 0};
-  double tmp [2] = {1.1, 1.8};
+  double tmp [2] = {0, 0};
   double p [2] = {0, 0};
   double q [2] = {0, 0};
 
   cout << "Starting Quasi-Newtonn method.\nParameters:" << endl;
   cout << "Precision: " << precision << endl;
   cout << "Max number of iterations: " << max_iterations << endl;
-  cout << "Starting..." << endl;
+  cout << "Starting... at " << out[0] << " " << out[1] << endl;
+  cout << "---------------------------------------------" << endl;
 
-  //initialize H
-  h_function(out[0], out[1], est_hess);
+  //init grad
+  d_function(out[0], out[1], grad);
 
   //main loop
-  while (current_iteration < max_iterations)
+  while (!(grad[0] == 0 && grad[1] == 0))
   {
-    //tmp = x[k-1]
-
-    // p = x[k] - x[k-1]
-    p[0] = out[0] - tmp[0];
-    p[1] = out[1] - tmp[1];
-
-    d_function(tmp[0], tmp[1], grad);
-
-    // q = grad(x[k]) - grad(x[k-1])
-    q[0] = -1 * grad[0];
-    q[1] = -1 * grad[1];
-
     memcpy(&tmp, out, 2 * sizeof(double));
     //tmp = x[k];
-    d_function(tmp[0], tmp[1], grad);
 
-    q[0] += grad[0];
-    q[1] += grad[1];
-
-    update_est_inv_hess(est_hess, p, q);
-    invert2dmatrix(est_hess, est_inv_hess);
-
-    //BFGS?
-    //h[k] = h[k-1] + (1+(qk^T*Hk*qk)*(pk^T*qk)^-1)*((pk*pk^-T)*(pk^T*qk)^-1) - ((pk*qk^T*Hk + Hk*qk*pk^T)*(pk^T*qk)^-1)
-    // update est_inv_hess
-
-    if (grad[0] == 0 && grad[1] == 0)
-    {
-      cout << "Grad exit " << grad[0] << " " << grad[1] << endl;
-      break;
-    }
-
-    if (current_iteration%100 == 0 || DEBUG)
+    if (current_iteration%DEBUG_SPACING == 0 || DEBUG)
     {
       cout << "i_HESS: "<<  est_inv_hess[0]<<", "<<est_inv_hess[1]<<", "<<est_inv_hess[2]<<", "<<est_inv_hess[3]<<endl;
       cout << "GRAD: "<<  grad[0]<<", "<<grad[1]<<endl;
+      cout << "p: "<<p[0] << " "<<p[1]<<" q: "<<q[0] << " "<<q[1]<<endl;
     }
 
     dk[0] = -1 * (est_inv_hess[0]*grad[0] + est_inv_hess[1]*grad[1]);
     dk[1] = -1 * (est_inv_hess[2]*grad[0] + est_inv_hess[3]*grad[1]);
 
-    // double t = goldenSectionSearch(precision, 0, 10, out, dk, function);
-    double t = 1;
+    // golden section search
+		double t;
+		if (name == "F1")
+		{
+			// we cant use GSS on f1 because it is not unimodal
+			t = 0.01;
+		}
+		else
+		{
+			t = goldenSectionSearch(precision, 0, 10, out, tmp, function);
+		}
 
-    if (current_iteration%100 == 0  || DEBUG)
+    if (current_iteration%DEBUG_SPACING == 0  || DEBUG)
     {
       cout << "Dk: "<<dk[0]<<" "<<dk[1]<< " t: "<<t<<endl;
     }
@@ -225,39 +215,64 @@ void quasiNewton (string name, double precision, int max_iterations, double *out
     out[0] += t * dk[0];
     out[1] += t * dk[1];
 
-    if (current_iteration%100 == 0 || DEBUG)
+    if ((current_iteration > max_iterations) && ITERX)
+		{
+			break;
+		}
+		if ((abs(function(out[0], out[1]) - function(tmp[0], tmp[1])) < DELTAF_PRECISION) && DELTAF)
+		{
+			break;
+		}
+		if (((abs(out[0] - tmp[0]) < precision) && (abs(out[1] - tmp[1]) < precision)) && LASTX)
+		{
+			break;
+		}
+
+    q[0] = -1*grad[0];
+    q[1] = -1*grad[1];
+    d_function(out[0], out[1], grad);
+    q[0] += grad[0];
+    q[0] += grad[1];
+
+    p[0] = out[0] - tmp[0];
+    p[1] = out[1] - tmp[1];
+
+    update_est_inv_hess(est_inv_hess, p, q);
+    //invert2dmatrix(est_inv_hess, tmp_hess);
+    //memcpy(&est_inv_hess, tmp_hess, 2 * sizeof(double));
+
+    if (current_iteration%DEBUG_SPACING == 0 || DEBUG)
     {
-      cout <<"Iteration: " << current_iteration <<" Result: (" << out[0] << ", " << out[1] << ")" << endl;
+      cout << "new GRAD: "<<  grad[0]<<", "<<grad[1]<<endl;
+      cout << "p: "<<p[0] << " "<<p[1]<<" q: "<<q[0] << " "<<q[1]<<endl;
+      cout <<"Iteration: " << current_iteration <<" Result: (" << out[0] << ", " << out[1] << ") Value: " << function(out[0], out[1]) << endl;
+      cout << "---------------------------------------------" << endl;
     }
 
     current_iteration += 1;
-
-    if ((abs(out[0] - tmp[0]) < precision) && (abs(out[1] - tmp[1]) < precision))
-    {
-      cout << "Precision Exit" << endl;
-      break;
-    }
   }
-  cout << "Proccess finalized for " << name <<". Result: (" << out[0] << ", " << out[1] << ")" << endl;
+  cout << "Proccess finalized for " << name <<". Result: (" << out[0] << ", " << out[1] << ") Value: " << function(out[0], out[1]) << endl;
   cout << "Total iterations: " << current_iteration << endl;
+  cout << "\n\n=========================================\n\n";
 }
 
 int main()
 {
   // starting point
-  double new_arr [2] = {0.1, 0.1};
+  double new_arr [2];
   // step size
-  double gamma = 0.01;
   // precision neede for stop
-  double precision = 0.00001;
+  double precision = PRECISION;
   // max iterations
-  int max_iterations = 100;
+  int max_iterations = MAX_ITERATIONS;
 
+  new_arr[0] = 10;
+  new_arr[1] = 10;
   quasiNewton("F1",precision, max_iterations, new_arr, f1, df1, Hf1);
 
-  // cout << "\n===========\n" << endl;
-
-  // quasiNewton("F2",precision, max_iterations, new_arr, f2, df2, Hf2);
+  new_arr[0] = 0.3;
+  new_arr[1] = 0.3;
+  //quasiNewton("F2",precision, max_iterations, new_arr, f2, df2, Hf2);
 
   cout << "Exiting..." << endl;
   //cin.ignore();
