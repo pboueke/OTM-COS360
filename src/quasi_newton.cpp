@@ -4,16 +4,16 @@
 #include "stdlib.h"
 #include "string.h"
 
-#define DEBUG true
+#define DEBUG false
 #define DEBUG_SPACING 100000
 
-#define DELTAF true
+#define DELTAF false
 #define LASTX false
 #define ITERX true
 
 #define DELTAF_PRECISION 0.000000001
 #define PRECISION 0.00001
-#define MAX_ITERATIONS 30
+#define MAX_ITERATIONS 100000
 using namespace std;
 
 double f1 (double x, double y)
@@ -132,7 +132,6 @@ void update_est_inv_hess(double *hess, double *p, double *q) {
   first_matrix[3] = p[1]*p[1];
   for (int i = 0; i < 4; i++) {
     first_matrix[i] *= first_ratio;
-    first_matrix[i] /= common_divider;
   }
 
   double aux_matrix_a[4];
@@ -266,12 +265,12 @@ int main()
   // max iterations
   int max_iterations = MAX_ITERATIONS;
 
-  //new_arr[0] = 10;
-  //new_arr[1] = 10;
-  //quasiNewton("F1",precision, max_iterations, new_arr, f1, df1, Hf1);
+  // new_arr[0] = 0.9;
+  // new_arr[1] = 0.9;
+  // quasiNewton("F1",precision, max_iterations, new_arr, f1, df1, Hf1);
 
-  new_arr[0] = 5;
-  new_arr[1] = 5;
+  new_arr[0] = 0;
+  new_arr[1] = 0;
   quasiNewton("F2",precision, max_iterations, new_arr, f2, df2, Hf2);
 
   cout << "Exiting..." << endl;
