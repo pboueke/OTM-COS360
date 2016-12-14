@@ -42,26 +42,26 @@ void df2(double x, double y, double* out) {
 
 void Hf1 (double x, double y, double* out)
 {
-  // xx (-(4 log^2(x))/(x^2 (log^2(x) + log^2(y) + 1)^2) - (2 log(x))/(x^2 (log^2(x) + log^2(y) + 1)) + 2/(x^2 (log^2(x) + log^2(y) + 1))
+  //xx  -(2 (log(x) (log^2(y) + 1) + log^3(x) + log^2(x) - log^2(y) - 1))/(x^2 (log^2(x) + log^2(y) + 1)^2)
   out[0] = (-(4*pow(log(x),2))/(x*x*pow((pow(log(x), 2) + pow(log(y), 2) + 1), 2)) - (2*log(x))/(x*x*(pow(log(x), 2) + pow(log(y), 2) + 1)) + 2/(x*x*(pow(log(x), 2) + pow(log(y), 2) + 1)));
   //xy  -(4 log(x) log(y))/(x y (log^2(x) + log^2(y) + 1)^2)
   out[1] = -1*(4*log(x)*log(y))/(x*y*pow(pow(log(x),2) + pow(log(y),2) + 1, 2));
   //yx  -(4 log(x) log(y))/(x y (log^2(x) + log^2(y) + 1)^2)
   out[2] = -1*(4*log(x)*log(y))/(x*y*pow(pow(log(x),2) + pow(log(y),2) + 1, 2));
-  //yy  -(4 log^2(y))/(y^2 (log^2(x) + log^2(y) + 1)^2) - (2 log(y))/(y^2 (log^2(x) + log^2(y) + 1)) + 2/(y^2 (log^2(x) + log^2(y) + 1)))
-  out[3] = (-(4*pow(log(y),2))/(y*y*pow((pow(log(x), 2) + pow(log(y), 2) + 1), 2)) - (2*log(y))/(y*y*(pow(log(x), 2) + pow(log(y), 2) + 1)) + 2/(y*y*(pow(log(x), 2) + pow(log(y), 2) + 1)));
+  //yy  -(2 (log^2(x) (log(y) - 1) + log^3(y) + log^2(y) + log(y) - 1))/(y^2 (log^2(x) + log^2(y) + 1)^2)
+  out[3] = (-(4*pow(log(y),2))/(y*y*pow((pow(log(x), 2) + pow(log(y), 2) + 1), 2)) - (2*log(y))/(y*y*(pow(log(x), 2) + pow(log(y), 2) + 1)) + 2/(y*y*(pow(log(x), 2) + pow(log(y), 2) + 1)));;
 }
 
 void Hf2 (double x, double y, double* out)
 {
-  //xx    (2 (-2 x^6 + x^4 (2 y - 1) + x^2 (2 y^2 + 4 y + 5) - 2 y^3 + y^2 - 2 y + 1))/(x^4 + x^2 (1 - 2 y) + y^2 + 1)^2
-  out[0] = (2*(-2*pow(x,6) + pow(x,4)*(2*y - 1) + x*x*(2*y*y + 4*y + 5) - 2*y*y*y + y*y - 2*y + 1))/pow(pow(x,4) + x*x*(1 - 2*y) + y*y + 1, 2);
-  //xy    (4 x (x^4 - 2 x^2 y + y^2 - y - 1))/(x^4 + x^2 (1 - 2 y) + y^2 + 1)^2
-  out[1] = (4*x*(pow(x,4) - 2*x*x*y + y*y - y - 1))/pow(pow(x,4) + x*x*(1 - 2*y) + y*y + 1, 2);
-  //yx    (4 x (x^4 - 2 x^2 y + y^2 - y - 1))/(x^4 + x^2 (1 - 2 y) + y^2 + 1)^2
-  out[2] = (4*x*(pow(x,4) - 2*x*x*y + y*y - y - 1))/pow(pow(x,4) + x*x*(1 - 2*y) + y*y + 1, 2);
+  //xx    (4 (x^2 - y) + 8 x^2 + 2)/((x^2 - y)^2 + x^2 + 1) - (4 x (x^2 - y) + 2 x)^2/((x^2 - y)^2 + x^2 + 1)^2
+  out[0] = (4*(pow(x,2) - y) + 8*pow(x,2) + 2)/(pow(pow(x,2) - y, 2) + pow(x,2) + 1) - pow(4*x*(pow(x,2) - y) + 2*x, 2)/pow(pow(pow(x,2) - y, 2) + pow(x,2) + 1, 2);
+  //xy    (2 (4 x (x^2 - y) + 2 x) (x^2 - y))/((x^2 - y)^2 + x^2 + 1)^2 - (4 x)/((x^2 - y)^2 + x^2 + 1)
+  out[1] = (2*(4*x*(pow(x,2) - y) + 2*x)*(pow(x,2) - y))/(pow(pow(pow(x,2) - y, 2) + pow(x,2) + 1, 2)) - (4*x)/(pow(pow(x,2) - y, 2) + pow(x,2) + 1);
+  //yx    (2 (4 x (x^2 - y) + 2 x) (x^2 - y))/((x^2 - y)^2 + x^2 + 1)^2 - (4 x)/((x^2 - y)^2 + x^2 + 1)
+  out[2] = (2*(4*x*(pow(x,2) - y) + 2*x)*(pow(x,2) - y))/(pow(pow(pow(x,2) - y, 2) + pow(x,2) + 1, 2)) - (4*x)/(pow(pow(x,2) - y, 2) + pow(x,2) + 1);
   //yy   -(2 (x^4 - x^2 (2 y + 1) + y^2 - 1))/(x^4 + x^2 (1 - 2 y) + y^2 + 1)^2
-  out[3] = -1 * (2*(pow(x,4) + x*x*(2*y - 1) + y*y - 1))/pow(pow(x,4) + x*x*(2*y + 1) + y*y + 1, 2);
+  out[3] = 2/(pow(pow(x,2) - y, 2) + pow(x,2) + 1) - (4*pow(pow(x,2) - y, 2))/pow(pow(pow(x,2) - y, 2) + pow(x,2) + 1, 2);
 }
 
 void invert2dmatrix (double* original, double* inverted)
