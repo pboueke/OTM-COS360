@@ -204,7 +204,7 @@ void quasiNewton (string name, double precision, int max_iterations, double *out
 		}
 		else
 		{
-			t = goldenSectionSearch(precision, 0, 10, out, tmp, function);
+			t = goldenSectionSearch(precision, 0, 10, out, dk, function);
 		}
 
     if (current_iteration%DEBUG_SPACING == 0  || DEBUG)
@@ -272,7 +272,7 @@ int main()
 
   new_arr[0] = 0.3;
   new_arr[1] = 0.3;
-  //quasiNewton("F2",precision, max_iterations, new_arr, f2, df2, Hf2);
+  quasiNewton("F2",precision, max_iterations, new_arr, f2, df2, Hf2);
 
   cout << "Exiting..." << endl;
   //cin.ignore();

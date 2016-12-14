@@ -127,7 +127,7 @@ void newton (string name, double precision, int max_iterations, double *out, dou
   cout << "Starting..." << endl;
   cout << "---------------------------------------------" << endl;
   //main loop
-  while (current_iteration < max_iterations)
+  while (!(grad[0] == 0 && grad[1] == 0))
   {
     //tmp = out;
     memcpy(&tmp, out, 2 * sizeof(double));
@@ -135,12 +135,6 @@ void newton (string name, double precision, int max_iterations, double *out, dou
     d_function(tmp[0], tmp[1], grad);
     h_function(tmp[0], tmp[1], hess);
     invert2dmatrix(hess, inv_hess);
-
-    if (grad[0] == 0 && grad[1] == 0)
-    {
-      cout << "Grad exit " << grad[0] << " " << grad[1] << endl;
-      break;
-    }
 
     if (current_iteration%DEBUG_SPACING == 0 || DEBUG)
     {
@@ -161,7 +155,7 @@ void newton (string name, double precision, int max_iterations, double *out, dou
 		}
 		else
 		{
-			t = goldenSectionSearch(precision, 0, 10, out, tmp, function);
+			t = goldenSectionSearch(precision, 0, 10, out, dk, function);
 		}
 
     if (current_iteration%DEBUG_SPACING == 0  || DEBUG)
