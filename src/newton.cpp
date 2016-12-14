@@ -1,17 +1,17 @@
 #include <iostream>
 #include <cmath>
-#include <cstring>
+#include <string>
 #include "string.h"
 
 #define DEBUG false
-#define DEBUG_SPACING 100000000
+#define DEBUG_SPACING 100000
 
 #define DELTAF false
 #define LASTX false
 #define ITERX true
 
 #define DELTAF_PRECISION 0.0000001
-#define PRECISION 0.0000001
+#define PRECISION 0.00001
 #define MAX_ITERATIONS 100000
 
 
@@ -44,25 +44,25 @@ void df2(double x, double y, double* out) {
 void Hf1 (double x, double y, double* out)
 {
   //xx  -(2 (log(x) (log^2(y) + 1) + log^3(x) + log^2(x) - log^2(y) - 1))/(x^2 (log^2(x) + log^2(y) + 1)^2)
-  out[0] = -1*(2*(log(x)*(pow(log(y),2) + 1) + pow(log(x),3) + pow(log(x),2) - pow(log(y),2) - 1))/(x*x*pow(pow(log(x),2) + pow(log(y),2) + 1, 2));
+  out[0] = (-(4*pow(log(x),2))/(x*x*pow((pow(log(x), 2) + pow(log(y), 2) + 1), 2)) - (2*log(x))/(x*x*(pow(log(x), 2) + pow(log(y), 2) + 1)) + 2/(x*x*(pow(log(x), 2) + pow(log(y), 2) + 1)));
   //xy  -(4 log(x) log(y))/(x y (log^2(x) + log^2(y) + 1)^2)
   out[1] = -1*(4*log(x)*log(y))/(x*y*pow(pow(log(x),2) + pow(log(y),2) + 1, 2));
   //yx  -(4 log(x) log(y))/(x y (log^2(x) + log^2(y) + 1)^2)
   out[2] = -1*(4*log(x)*log(y))/(x*y*pow(pow(log(x),2) + pow(log(y),2) + 1, 2));
   //yy  -(2 (log^2(x) (log(y) - 1) + log^3(y) + log^2(y) + log(y) - 1))/(y^2 (log^2(x) + log^2(y) + 1)^2)
-  out[3] = -1*(2*(pow(log(x),2)*(log(y) - 1) + pow(log(y),3) + pow(log(y),2) + log(y) - 1))/(y*y*pow(pow(log(x),2) + pow(log(y),2) + 1, 2));
+  out[3] = (-(4*pow(log(y),2))/(y*y*pow((pow(log(x), 2) + pow(log(y), 2) + 1), 2)) - (2*log(y))/(y*y*(pow(log(x), 2) + pow(log(y), 2) + 1)) + 2/(y*y*(pow(log(x), 2) + pow(log(y), 2) + 1)));;
 }
 
 void Hf2 (double x, double y, double* out)
 {
-  //xx    (2 (-2 x^6 + x^4 (2 y - 1) + x^2 (2 y^2 + 4 y + 5) - 2 y^3 + y^2 - 2 y + 1))/(x^4 + x^2 (1 - 2 y) + y^2 + 1)^2
-  out[0] = (2*(-2*pow(x,6) + pow(x,4)*(2*y - 1) + x*x*(2*y*y + 4*y + 5) - 2*y*y*y + y*y - 2*y + 1))/pow(pow(x,4) + x*x*(1 - 2*y) + y*y + 1, 2);
-  //xy    (4 x (x^4 - 2 x^2 y + y^2 - y - 1))/(x^4 + x^2 (1 - 2 y) + y^2 + 1)^2
-  out[1] = (4*x*(pow(x,4) - 2*x*x*y + y*y - y - 1))/pow(pow(x,4) + x*x*(1 - 2*y) + y*y + 1, 2);
-  //yx    (4 x (x^4 - 2 x^2 y + y^2 - y - 1))/(x^4 + x^2 (1 - 2 y) + y^2 + 1)^2
-  out[2] = (4*x*(pow(x,4) - 2*x*x*y + y*y - y - 1))/pow(pow(x,4) + x*x*(1 - 2*y) + y*y + 1, 2);
+  //xx    (4 (x^2 - y) + 8 x^2 + 2)/((x^2 - y)^2 + x^2 + 1) - (4 x (x^2 - y) + 2 x)^2/((x^2 - y)^2 + x^2 + 1)^2
+  out[0] = (4*(pow(x,2) - y) + 8*pow(x,2) + 2)/(pow(pow(x,2) - y, 2) + pow(x,2) + 1) - pow(4*x*(pow(x,2) - y) + 2*x, 2)/pow(pow(pow(x,2) - y, 2) + pow(x,2) + 1, 2);
+  //xy    (2 (4 x (x^2 - y) + 2 x) (x^2 - y))/((x^2 - y)^2 + x^2 + 1)^2 - (4 x)/((x^2 - y)^2 + x^2 + 1)
+  out[1] = (2*(4*x*(pow(x,2) - y) + 2*x)*(pow(x,2) - y))/(pow(pow(pow(x,2) - y, 2) + pow(x,2) + 1, 2)) - (4*x)/(pow(pow(x,2) - y, 2) + pow(x,2) + 1);
+  //yx    (2 (4 x (x^2 - y) + 2 x) (x^2 - y))/((x^2 - y)^2 + x^2 + 1)^2 - (4 x)/((x^2 - y)^2 + x^2 + 1)
+  out[2] = (2*(4*x*(pow(x,2) - y) + 2*x)*(pow(x,2) - y))/(pow(pow(pow(x,2) - y, 2) + pow(x,2) + 1, 2)) - (4*x)/(pow(pow(x,2) - y, 2) + pow(x,2) + 1);
   //yy   -(2 (x^4 - x^2 (2 y + 1) + y^2 - 1))/(x^4 + x^2 (1 - 2 y) + y^2 + 1)^2
-  out[3] = -1 * (2*(pow(x,4) + x*x*(2*y - 1) + y*y - 1))/pow(pow(x,4) + x*x*(2*y + 1) + y*y + 1, 2);
+  out[3] = 2/(pow(pow(x,2) - y, 2) + pow(x,2) + 1) - (4*pow(pow(x,2) - y, 2))/pow(pow(pow(x,2) - y, 2) + pow(x,2) + 1, 2);
 }
 
 void invert2dmatrix (double* original, double* inverted)
@@ -152,15 +152,25 @@ void newton (string name, double precision, int max_iterations, double *out, dou
     dk[0] = -1 * (inv_hess[0]*grad[0] + inv_hess[1]*grad[1]);
     dk[1] = -1 * (inv_hess[2]*grad[0] + inv_hess[3]*grad[1]);
 
-    double t = goldenSectionSearch(precision, 0, 10, out, dk, function);
+    // golden section search
+		double t;
+		if (name == "F1")
+		{
+			// we cant use GSS on f1 because it is not unimodal
+			t = 0.01;
+		}
+		else
+		{
+			t = goldenSectionSearch(precision, 0, 10, out, tmp, function);
+		}
 
     if (current_iteration%DEBUG_SPACING == 0  || DEBUG)
     {
       cout << "Dk: "<<dk[0]<<" "<<dk[1]<< " t: "<<t<<endl;
     }
 
-    out[0] += t * dk[0];
-    out[1] += t * dk[1];
+    out[0] -= t * dk[0];
+    out[1] -= t * dk[1];
 
     if (current_iteration%DEBUG_SPACING == 0 || DEBUG)
     {
@@ -198,12 +208,12 @@ int main()
   // max iterations
   int max_iterations = MAX_ITERATIONS;
 
-  new_arr[0] = 0.5;
-  new_arr[1] = 0.5;
+  new_arr[0] = 1.1;
+  new_arr[1] = 1.1;
   newton("F1",precision, max_iterations, new_arr, f1, df1, Hf1);
 
-  new_arr[0] = 0.5;
-  new_arr[1] = 0.5;
+  new_arr[0] = 0.1;
+  new_arr[1] = 0.1;
   newton("F2",precision, max_iterations, new_arr, f2, df2, Hf2);
 
   cout << "Exiting..." << endl;

@@ -4,13 +4,15 @@
 #include <string>
 #include "string.h"
 
+#define DEBUG_SPACING 10000
+
 #define DELTAF false
 #define LASTX false
 #define ITERX true
 
 #define DELTAF_PRECISION 0.0000001
 #define PRECISION 0.0000001
-#define MAX_ITERATIONS 100000
+#define MAX_ITERATIONS 1000000
 #define GAMMA 0.01
 
 using namespace std;
@@ -84,7 +86,7 @@ void gradient(string name, double precision, double gamma, int max_iterations, d
 	double tmp[2] = { 0, 0 };
 	double last_out[2] = { 0, 0 };
 
-	cout << "Starting Gradient descent.\nParameters:" << endl;
+	cout << "Starting Gradient descent for "<< name <<".\nParameters:" << endl;
 	cout << "Gamma: " << gamma << endl;
 	cout << "Precision: " << precision << endl;
 	cout << "Max number of iterations: " << max_iterations << endl;
@@ -92,7 +94,7 @@ void gradient(string name, double precision, double gamma, int max_iterations, d
 	//main loop
 	while (true)
 	{
-		if (current_iteration % 10000 == 0)
+		if (current_iteration % DEBUG_SPACING == 0)
 		{
 			cout << "Iteration: " << current_iteration << ". Result: (" << out[0] << ", " << out[1] << ")" << endl;
 		}
@@ -102,7 +104,16 @@ void gradient(string name, double precision, double gamma, int max_iterations, d
 		tmp[1] += -gamma * grad[1];
 
 		// golden section search
-		double t = goldenSectionSearch(precision, 0, 10, out, tmp, function);
+		double t;
+		if (name == "F1")
+		{
+			// we cant use GSS on f1 because it is not unimodal
+			t = 0.01;
+		}
+		else
+		{
+			t = goldenSectionSearch(precision, 0, 10, out, tmp, function);
+		}
 
 		last_out[0] = out[0];
 		last_out[1] = out[1];
@@ -139,10 +150,10 @@ int main()
 	// max iterations
 	int max_iterations = MAX_ITERATIONS;
 
-	new_arr[0] = 0.5;
-	new_arr[1] = 0.5;
+	new_arr[0] = 1.5;
+	new_arr[1] = 1.5;
 	gradient("F1", precision, gamma, max_iterations, new_arr, df1, f1);
-	
+
 	new_arr[0] = 0.5;
 	new_arr[1] = 0.5;
 	gradient("F2", precision, gamma, max_iterations, new_arr, df2, f2);
